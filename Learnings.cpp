@@ -1,5 +1,6 @@
 #include<iostream>
 #include<string>
+#include<fstream>
 #include<vector>
 using namespace std;
 //TESTING HEIRARCHY SYSTEM
@@ -199,10 +200,45 @@ using namespace std;
 
 //TESTING OUT FORMAT
 
-int main(){
-    // cout<<"\t    ======================================================\n";
-	// cout<<"\t   |               FILE MANAGEMENT SYSTEM                 |\n";
-    // cout<<"\t    ======================================================\n\n\n\n\n\n\n\n\n\n\n";
+// int main(){
+//     // cout<<"\t    ======================================================\n";
+// 	// cout<<"\t   |               FILE MANAGEMENT SYSTEM                 |\n";
+//     // cout<<"\t    ======================================================\n\n\n\n\n\n\n\n\n\n\n";
 
-    cout << "FILE MANAGEMENT SYSTEM";
+//     cout << "FILE MANAGEMENT SYSTEM";
+// }
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+
+// COPYING FILE
+
+// int main(){
+//     ifstream src("file.txt");
+//     ofstream dest("file_copy.txt", ios::out);
+//     string buff;
+//     while(getline(src, buff)){
+//         dest << buff << endl;
+//     }
+// }
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// EXPLORING CSTDLIB FOR SYSTEM()
+#include<windows.h>
+string getCWD(){
+    char cwd[MAX_PATH]; // An array of char to store path of var, array of 260 char for windows, MAX_PATH is a constn defined in windows.h 
+    GetCurrentDirectoryA(MAX_PATH, cwd);// Function in windows.h  here cwd:A pointer to the buffer where the directory path will be stored
+    string path = cwd;
+    return path;
 }
+
+int main(){
+    string cmd = "cd C:/Desktop files/IT ALL BEGINS HERE/Zine/File Management System in C++";
+
+    system(cmd.c_str());
+    cout << getCWD();
+    ofstream file("file.txt");
+    file << "Hello, World!";
+    file.close();
+}
+
