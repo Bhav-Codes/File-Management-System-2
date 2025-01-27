@@ -224,21 +224,35 @@ using namespace std;
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // EXPLORING CSTDLIB FOR SYSTEM()
-#include<windows.h>
-string getCWD(){
-    char cwd[MAX_PATH]; // An array of char to store path of var, array of 260 char for windows, MAX_PATH is a constn defined in windows.h 
-    GetCurrentDirectoryA(MAX_PATH, cwd);// Function in windows.h  here cwd:A pointer to the buffer where the directory path will be stored
-    string path = cwd;
-    return path;
-}
+
+// #include<windows.h>
+// string getCWD(){
+//     char cwd[MAX_PATH]; // An array of char to store path of var, array of 260 char for windows, MAX_PATH is a constn defined in windows.h 
+//     GetCurrentDirectoryA(MAX_PATH, cwd);// Function in windows.h  here cwd:A pointer to the buffer where the directory path will be stored
+//     string path = cwd;
+//     return path;
+// }
+
+// int main(){
+//     string cmd = "cd C:/Desktop files/IT ALL BEGINS HERE/Zine/File Management System in C++";
+
+//     system(cmd.c_str());
+//     cout << getCWD();
+//     ofstream file("file.txt");
+//     file << "Hello, World!";
+//     file.close();
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// int main(){
+//     ifstream files("C:/Desktop files/IT ALL BEGINS HERE/Zine/File Explorer/hello.txt");
+//     cout << files.good();
+//     files.close();
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main(){
-    string cmd = "cd C:/Desktop files/IT ALL BEGINS HERE/Zine/File Management System in C++";
-
-    system(cmd.c_str());
-    cout << getCWD();
-    ofstream file("file.txt");
-    file << "Hello, World!";
-    file.close();
+    cout << !0; 
 }
-
