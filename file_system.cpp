@@ -2,14 +2,15 @@
 #include<fstream>
 #include<string>
 #include<vector> 
-#include<cstdlib> // for system(), used to execute system commands
+//#include<cstdlib> // for system(), used to execute system commands
 #include<cstdio> // To delete file, Syntax: remove("filename.txt");
-//#include<filesystem> //unable to integrate, because old compiler to substituted this - using windows API
+//#include<filesystem> //unable to integrate, because old compiler to substituted this - using windows API, and also i've tried to avoid the use of it as it has many pre written logics
 #include<Windows.h> // For getting Current working directory (problem: makes the app windows specific)(But file system not working because old compiler)
 // NOT WORKING WITH PATH !!!!
 #define APP_NAME "FILE MANAGEMENT SYSTEM"
 using namespace std;
 vector<string> split(string , char);
+string join(vector<string> , char);
 
 // Class of all the basic operations on FILE
 class file_op{
@@ -33,7 +34,8 @@ public:
                 std::cout << "No such file or directory as '" << fileName << "' found."<< endl; 
         }
 
-        vector<string> copy(string fileName){ // Copies file name and its content in an array
+        vector<string> copy(string fileName){ 
+            // Copies file name and its content in an array
             vector<string> file_name_arr = split(fileName, '.');
             vector<string> file_det;
             string buff;
@@ -47,6 +49,53 @@ public:
                 file_det[1] += buff + "\n";
             std::cout << "File copied succesfully\n";
             return file_det;
+        }
+
+        void cd(string* cwd, vector<string> cmd_arr, string cmd){ 
+            // CHECK FUNCTIONING
+            vector<string> temp;
+            string temp_cwd = *cwd;
+            if(split(cmd_arr[1], '/').size() > 1 || split(cmd_arr[1], '\\').size() > 1){ 
+                // Taking care of user input path can be of form / or \ 
+                *cwd = cmd_arr[1];
+            }
+            else if(cmd_arr[1] == "-"){
+                if(split(*cwd, '\\').size() > 1){
+                    temp = split(*cwd, '\\');
+                    temp.pop_back();
+                    *cwd = join(temp, '\\');
+                }
+                else if(split(*cwd, '/').size() > 1){
+                    temp = split(*cwd, '/');
+                    temp.pop_back();
+                    *cwd = join(temp, '/');
+                }
+            }
+            else{
+                if(split(*cwd, '\\').size() > 1){
+                    temp_cwd = temp_cwd + "\\" + cmd_arr[1];
+                    ofstream test_file(temp_cwd + "\\test________test.txt");
+                    // Checks if the entered directory exists
+                    if(test_file.good())
+                        *cwd = temp_cwd;
+                    else
+                        cout << "No such directory as '" << cmd_arr[1] << "' found." << endl;
+                    test_file.close();
+                }
+                else if(split(temp_cwd, '/').size() > 1){
+                    temp_cwd = temp_cwd + "/" + cmd_arr[1];
+                    ofstream test_file("");
+                    // Checks if the entered directory exists
+                    if(test_file.good())
+                        *cwd = temp_cwd;
+                    else
+                        cout << "No such directory as '" << cmd_arr[1] << "' found." << endl;
+                    test_file.close();
+                }
+                
+            }
+
+
         }
 
         void help(){            
@@ -68,6 +117,7 @@ string join(vector<string> arr, char joiner){
         str += arr[i];
         str += joiner;
     }
+    str.pop_back();
     return str;
 }
 // To validate the number of arguments of a command
@@ -137,12 +187,38 @@ vector<string> split(string s, char splitter){
     return arr;
 }
 
+// This algo handles the splitting of path if directory name has space in it
+vector<string> split_cmd(string s){
+    vector<string> temp1, temp2, temp3;
+    
+    if(split(s, '/').size() > 1){ // Taking care of user input path can be of form / or "\"        
+        temp1 = split(s, '/');
+        temp3 = split(temp1[0], ' ');        
+        temp2.push_back(temp3[0]);
+        temp1.erase(temp1.begin());
+        temp1.insert(temp1.begin(), temp3[1]);
+        temp2.push_back(join(temp1, '/'));
+        return temp2;
+    }    
+    else if( split(s, '\\').size() > 1){ // Taking care of user input path can be of form / or "\"
+        temp1 = split(s, '\\');
+        temp3 = split(temp1[0], ' ');        
+        temp2.push_back(temp3[0]);
+        temp1.erase(temp1.begin());
+        temp1.insert(temp1.begin(), temp3[1]);
+        temp2.push_back(join(temp1, '\\'));
+        return temp2;
+    }
+    else
+        return split(s, ' ');
+}
+
 // Function to display the heirarchy
 void display_Heirarchy(){ // Pending...
 
 }
 
-// Function to open shell
+// Function to open shell (OPTIONAL)
 void openWin() { // Pending...
 }
 
@@ -188,4 +264,4 @@ int main(){
     std::cout << "Thank You for using" << APP_NAME << "\n Exiting...\n"; 
     
     return 0;
-}
+}   

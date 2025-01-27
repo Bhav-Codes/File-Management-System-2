@@ -36,6 +36,8 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------------
 //TESTING VECTORS AND SPLITTING STRINGS
+// READ HANDWRITTEN NOTES !!!!
+
 // int countChr(string s, char splitter){
 //     int count = 0;
 //     for (int i = 0; i < s.length(); i++){
@@ -253,6 +255,114 @@ using namespace std;
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+// int main(){
+//     cout << !0; 
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// LEARNING HASHMAPS FOR DIRECTORIES
+// #include<unordered_map>
+
+// int main(){
+//     unordered_map<string, string> dir;
+
+//     dir = {{"Hello", "There"} , {"File", "Access"} , {"System", "In C++"} , {"Directory", "Access "} , {"File", "Management"}};
+//     // DUPLICATES SO 2ND ONE IGNORED ALSO NOT COUNTED IN SIZE
+//     // dir.insert({"My", "name"});
+//     cout << dir["qwert"]; // Defined here but empty value
+//     cout << dir.size() << dir["poiu"]; // !! SIZE NOT
+//     cout << dir["asdf"];
+
+//     dir["qwert"] = "ghfjd";
+//     cout << dir["qwert"];
+// } 
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// int main(){
+//     string temp;
+//     ofstream file("C:\\Desktop files\\IT ALL BEGINS HERE\\Zine\\Doesn't exist path\\Hello.txt");
+//     cout << bool(file.good()); // outputs false
+//     file.close();
+
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// int main(){
+//     string temp = "Hello there";
+//     temp.pop_back();
+//     cout << temp;
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// int main(){
+//     vector<int> a = {1,2,3,4,5};
+//     a.erase(a.begin());
+//     cout << a[0];
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+string join(vector<string> arr, char joiner){
+    string str = "";
+    for(int  i = 0; i < arr.size(); i++){
+        str += arr[i];
+        str += joiner;
+    }
+    str.pop_back();
+    return str;
+}
+
+vector<string> split(string s, char splitter){
+    s += splitter;
+    vector<string> arr;
+    string temp = "";
+
+    for(int i = 0; i < s.length() ; i++){
+        if(s[i] == splitter){
+            arr.push_back(temp);
+            temp = "";
+        }
+        else
+            temp += s[i];
+    }
+    return arr;
+}
+
+// This algo handles the splitting of path if directory name has space in it
+vector<string> split_cmd(string s){
+    vector<string> temp1, temp2, temp3;
+    
+    if(split(s, '/').size() > 1){ // Taking care of user input path can be of form / or "\"        
+        temp1 = split(s, '/');
+        temp3 = split(temp1[0], ' ');        
+        temp2.push_back(temp3[0]);
+        temp1.erase(temp1.begin());
+        temp1.insert(temp1.begin(), temp3[1]);
+        temp2.push_back(join(temp1, '/'));
+        return temp2;
+    }    
+    else if( split(s, '\\').size() > 1){ // Taking care of user input path can be of form / or "\"
+        temp1 = split(s, '\\');
+        temp3 = split(temp1[0], ' ');        
+        temp2.push_back(temp3[0]);
+        temp1.erase(temp1.begin());
+        temp1.insert(temp1.begin(), temp3[1]);
+        temp2.push_back(join(temp1, '\\'));
+        return temp2;
+    }
+    else
+        return split(s, ' ');
+}
+
 int main(){
-    cout << !0; 
+    string test = "cd C:/Desktop files/IT ALL BEGINS HERE/Zine/File Management System in C++";
+    vector<string> test2 = split_cmd(test);
+    cout << test2.size() << endl;
+    for(int i = 0; i < test2.size(); i++){
+        cout << test2[i] << endl;
+    }
 }
