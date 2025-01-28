@@ -2,23 +2,21 @@
 #include<fstream>
 #include<string>
 #include<vector> 
-//#include<cstdlib> // for system(), used to execute system commands
+//#include<cstdlib> // for system(), used to execute system commands, // Could have used this to directly use ccommand propmt function but opt to do it myself
 #include<cstdio> // To delete file, Syntax: remove("filename.txt");
 //#include<filesystem> //unable to integrate, because old compiler to substituted this - using windows API, and also i've tried to avoid the use of it as it has many pre written logics
 #include<Windows.h> // For getting Current working directory (problem: makes the app windows specific)(But file system not working because old compiler)
-// NOT WORKING WITH PATH !!!!
-// MISSING FUNCTION : COPYING DIRECTORY
+// WE CAN ALSO USE THE UP ARROW TO GET THE PREVIOUS COMMAND
 #define APP_NAME "FILE MANAGEMENT SYSTEM"
 using namespace std;
 vector<string> split(string , char);
 string join(vector<string> , char);
-
 // Class of all the basic operations on FILE
 class file_op{
 public:
-        void create(string fileName) {
+        void create(string fileName){
             ifstream test(fileName);
-            if (test.good()) {
+            if (test.good()){
                 cout << "File is already present\n";
                 return ;
             }
@@ -132,17 +130,27 @@ public:
                     test_file.close();
                 }                
             }
+        }
 
+        void crtdir(string s){
+            s = "mkdir \"" + s + "\"";
+            system(s.c_str());
+        }
 
+        void deldir(string s){
+            s = "rmdir \"" + s + "\" /S /Q" ; // /S to also delete subdirectories and /Q to force pass the the confirmation message given by command prompt
+            system(s.c_str());
         }
 
         void help(){            
             std::cout << "\nCREATE: To create a file SYNTAX-> create <fileName/Path>\n"
                  << "DEL: To delete a file SYNTAX-> del <fileName/Path>\n"
-                 << "COPY: To copy content from one file to another SYNTAX-> cnp <sourceFile>\n"
+                 << "COPY: To copy file or directory to clipboard SYNTAX-> cnp <sourceFileName>\n"
                  << "PASTE: To paste the clipboard content\n"
                  << "END: To close and Exit the Session\n"
                  << "CD: To change directory SYNTAX:\n\t cd <directoryName/Path>\n\t cd - : To go back by one directory\n"
+                 << "CRTDIR: To create a dir SYNTAX: ctdir <dirName/path>\n"
+                 << "DELDIR: To delete a dir SYNTAX: deldir <dirName/path> (DANGEROUS!!!)\n"
                  << "\n";
         }
 
@@ -266,6 +274,7 @@ int main(){
     string cwdPath = getCWD();
     string cwd = cwdPath;
     vector<string> clipboard;
+    vector<string> cnpdir;
     vector<string> cwd_arr;
     while(true){
         string cmd;
@@ -283,20 +292,63 @@ int main(){
             op.create(cwd + "\\" + cmd_arr[1]);
         else if(cmd_arr[0] == "del" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0])))
             op.del(cwd + "\\" + cmd_arr[1]);
-        else if(cmd_arr[0] == "copy" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0])))
-            clipboard = op.copy(cwd + "\\" + cmd_arr[1]);
+        else if(cmd_arr[0] == "copy" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0]))){
+            ifstream file1(cmd_arr[1]);
+            ofstream file2(cwd + "\\" + cmd_arr[1] + "\\test________test.txt");
+            if(file1.good()){
+                clipboard = op.copy(cmd_arr[1]);
+                file1.close(); 
+            }        
+            else if(file2.good()){
+                clipboard.push_back(cwd + "\\" + cmd_arr[1]);
+                clipboard.push_back("");
+                clipboard.push_back(cmd_arr[1]);
+                file2.close();
+                op.del(cwd + "\\" + cmd_arr[1] + "\\test________test.txt");
+            }
+            else{
+                file1.close();
+                file2.close();
+                cout << "No such file or directory as '" << cmd_arr[1] << "' found.\n";
+            }
+        }
         else if(cmd_arr[0] == "paste" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0]))){
             if(clipboard.size() == 0)
                 std::cout << "Nothing to paste, please copy a file first\n";
-            else{
-                ofstream copied_file(clipboard[0]);
+            else if(clipboard.size() == 2){
+                ofstream copied_file(cwd + "\\" + clipboard[0]);
                 copied_file << clipboard[1];
                 clipboard.clear();
                 copied_file.close();
             }
+            else{
+                op.crtdir(clipboard[2]);
+                string temp = "xcopy \"" + clipboard[0] + "\" \"" + cwd + "\\" + clipboard[2] + "_copy" + "\" /E /I"; // Command prompt function to compy and paste directories, /E also ccopies all the subdirectories
+                system(temp.c_str());
+                clipboard.clear();
+            }
         }
-        else if(cmd_arr[0] == "cd")
+        else if(cmd_arr[0] == "cd" && (validity = validate_args(cmd_arr.size() - 1, 1, 10, cmd_arr[0])))
             op.cd(&cwd, cmd_arr);
+        else if(cmd_arr[0] == "crtdir" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0])))
+            op.crtdir(cmd_arr[1]);
+        else if(cmd_arr[0] == "deldir" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0]))){
+            string confirmation;
+            cout << "Are you sure you want to remove directory?(yes/no): ";
+            cin >> confirmation;
+            if(confirmation == "yes"){
+                cout << "WARNING: THERE IS NO GOING BACK, YOU DIRECTORY WILL BE PERMANENTLY REMOVED\nDo you want to proceed?(yes/no): ";
+                cin >> confirmation;
+                if(confirmation == "yes"){
+                    cout << "Type \"confirm\" to confirm the action\n"
+                    << "Type \"cancel\" to cancel the action\n";
+                    cin >> confirmation;
+                    if(confirmation == "confirm"){
+                        op.deldir(cwd + "\\" + cmd_arr[1]);
+                    }
+                }
+            }                    
+        }
         else if(cmd_arr[0] == "end")
             break;
         else if(validity)
@@ -305,4 +357,4 @@ int main(){
     std::cout << "Thank You for using" << APP_NAME << "\n Exiting...\n"; 
     
     return 0;
-}   
+}

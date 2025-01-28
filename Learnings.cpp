@@ -306,63 +306,72 @@ using namespace std;
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-string join(vector<string> arr, char joiner){
-    string str = "";
-    for(int  i = 0; i < arr.size(); i++){
-        str += arr[i];
-        str += joiner;
-    }
-    str.pop_back();
-    return str;
-}
+// string join(vector<string> arr, char joiner){
+//     string str = "";
+//     for(int  i = 0; i < arr.size(); i++){
+//         str += arr[i];
+//         str += joiner;
+//     }
+//     str.pop_back();
+//     return str;
+// }
 
-vector<string> split(string s, char splitter){
-    s += splitter;
-    vector<string> arr;
-    string temp = "";
+// vector<string> split(string s, char splitter){
+//     s += splitter;
+//     vector<string> arr;
+//     string temp = "";
 
-    for(int i = 0; i < s.length() ; i++){
-        if(s[i] == splitter){
-            arr.push_back(temp);
-            temp = "";
-        }
-        else
-            temp += s[i];
-    }
-    return arr;
-}
+//     for(int i = 0; i < s.length() ; i++){
+//         if(s[i] == splitter){
+//             arr.push_back(temp);
+//             temp = "";
+//         }
+//         else
+//             temp += s[i];
+//     }
+//     return arr;
+// }
 
-// This algo handles the splitting of path if directory name has space in it
-vector<string> split_cmd(string s){
-    vector<string> temp1, temp2, temp3;
+// // This algo handles the splitting of path if directory name has space in it
+// vector<string> split_cmd(string s){
+//     vector<string> temp1, temp2, temp3;
     
-    if(split(s, '/').size() > 1){ // Taking care of user input path can be of form / or "\"        
-        temp1 = split(s, '/');
-        temp3 = split(temp1[0], ' ');        
-        temp2.push_back(temp3[0]);
-        temp1.erase(temp1.begin());
-        temp1.insert(temp1.begin(), temp3[1]);
-        temp2.push_back(join(temp1, '/'));
-        return temp2;
-    }    
-    else if( split(s, '\\').size() > 1){ // Taking care of user input path can be of form / or "\"
-        temp1 = split(s, '\\');
-        temp3 = split(temp1[0], ' ');        
-        temp2.push_back(temp3[0]);
-        temp1.erase(temp1.begin());
-        temp1.insert(temp1.begin(), temp3[1]);
-        temp2.push_back(join(temp1, '\\'));
-        return temp2;
-    }
-    else
-        return split(s, ' ');
-}
+//     if(split(s, '/').size() > 1){ // Taking care of user input path can be of form / or "\"        
+//         temp1 = split(s, '/');
+//         temp3 = split(temp1[0], ' ');        
+//         temp2.push_back(temp3[0]);
+//         temp1.erase(temp1.begin());
+//         temp1.insert(temp1.begin(), temp3[1]);
+//         temp2.push_back(join(temp1, '/'));
+//         return temp2;
+//     }    
+//     else if( split(s, '\\').size() > 1){ // Taking care of user input path can be of form / or "\"
+//         temp1 = split(s, '\\');
+//         temp3 = split(temp1[0], ' ');        
+//         temp2.push_back(temp3[0]);
+//         temp1.erase(temp1.begin());
+//         temp1.insert(temp1.begin(), temp3[1]);
+//         temp2.push_back(join(temp1, '\\'));
+//         return temp2;
+//     }
+//     else
+//         return split(s, ' ');
+// }
+
+// int main(){
+//     // string test = "cd C:/Desktop files/IT ALL BEGINS HERE/Zine/File Management System in C++";
+//     string test = "Hello there my name is";
+//     vector<string> test2 = split_cmd(test);
+//     for(int i = 0; i < test2.size(); i++){
+//         cout << test2[i] << endl;
+//     }
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#include<cstdlib>
 
 int main(){
-    string test = "cd C:/Desktop files/IT ALL BEGINS HERE/Zine/File Management System in C++";
-    vector<string> test2 = split_cmd(test);
-    cout << test2.size() << endl;
-    for(int i = 0; i < test2.size(); i++){
-        cout << test2[i] << endl;
-    }
+    string s = "mkdir \"C:\\Desktop files\\IT ALL BEGINS HERE\\Zine\\hello\"";
+    system(s.c_str());
 }
