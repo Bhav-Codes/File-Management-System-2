@@ -369,9 +369,52 @@ using namespace std;
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#include<cstdlib>
+// #include<cstdlib>
 
-int main(){
-    string s = "mkdir \"C:\\Desktop files\\IT ALL BEGINS HERE\\Zine\\hello\"";
-    system(s.c_str());
-}
+// int main(){
+//     string s = "mkdir \"C:\\Desktop files\\IT ALL BEGINS HERE\\Zine\\hello\"";
+//     system(s.c_str());
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// BUILDING HIERARCHY SYSTEM:
+
+// #include <iostream>
+// #include <windows.h>
+
+// int main() {
+//     string path = "C:\\Desktop files\\IT ALL BEGINS HERE";
+//     path += "\\*";
+//     WIN32_FIND_DATA findFileData; // WIN32_FIND_DATA is a struct that stores information about any file or folder 
+//     HANDLE hFind = FindFirstFile(path.c_str(), &findFileData);// HANDLE is a data type  in the Windows API that represents a reference (or pointer) to an object managed by the Windows operating system It is used to interact with system resources like files and foldrs, HANDLE is like an ID that Windows gives you when you open or create a system resource
+//     // if there are no files in the directory then FindFirstFile resturns INVALID_HANDLE_VALUE
+//     if (hFind == INVALID_HANDLE_VALUE){
+//         std::cout << "No files found.\n";
+//         return 1;
+//     }    
+//     while (FindNextFile(hFind, &findFileData) != 0){ // findnextfile return non zero if there are more files else it returns 0
+//         string fileName = findFileData.cFileName;
+
+//         if (fileName == "." || fileName == "..") // . and .. are the default system directories which represent ".": the current directory and "..": the parent directory
+//             continue;
+
+//         std::cout << fileName << std::endl;
+//     }
+
+//     FindClose(hFind);
+//     return 0;
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// int main(){
+//     for(int i = 0; i < 5; i++){
+
+//     }
+//     cout << i;
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
