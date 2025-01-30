@@ -9,6 +9,7 @@
 // WE CAN ALSO USE THE UP ARROW TO GET THE PREVIOUS COMMAND
 #define APP_NAME "FILE MANAGEMENT SYSTEM"
 using namespace std;
+bool hier_status = false; // To not re-display hierarchy view if there is an error message
 vector<string> split(string , char);
 string join(vector<string> , char);
 // Class of all the basic operations on FILE
@@ -18,19 +19,23 @@ public:
             ifstream test(fileName);
             if (test.good()){
                 cout << "File is already present\n";
+                hier_status = false;
                 return ;
             }
             test.close();
-            
+            hier_status = true;
             ofstream file(fileName);
             file.close();
         }
 
         void del(string fileName){
             // remove is in cstdio
-            if(remove(fileName.c_str()) != 0)// c_str used to type cast string to const char*, as remove has paramter as const char*
-
+            if(remove(fileName.c_str()) != 0){ // c_str used to type cast string to const char*, as remove has paramter as const char*
                 cout << "No such file as '" << fileName << "' found."<< endl; 
+                hier_status = false;
+                return ;
+            }
+            hier_status = true;
         }
 
         vector<string> copy(string fileName){ 
@@ -167,14 +172,15 @@ public:
             cout << "\nCREATE: To create a file SYNTAX-> create <fileName/Path>\n"
                  << "DEL: To delete a file SYNTAX-> del <fileName/Path>\n"
                  << "COPY: To copy file or directory to clipboard SYNTAX-> cnp <sourceFileName>\n"
-                 << "PASTE: To paste the clipboard content\n"
-                 << "END: To close and Exit the Session\n"
+                 << "PASTE: To paste the clipboard content\n"                 
                  << "CD: To change directory SYNTAX:\n\t cd <directoryName/Path>\n\t cd - : To go back by one directory\n"
                  << "CRTDIR: To create a dir SYNTAX: ctdir <dirName/path>\n"
                  << "DELDIR: To delete a dir SYNTAX: deldir <dirName/path> (DANGEROUS!!!)\n"
                  << "LIST: To display all the content present in the current working directory SYNTAX: list\n"
-                 << "HIER: To switch to an hierarchy view SYNTAX: hier"
+                 << "HIER: To switch to an hierarchy view SYNTAX: hier (Enter use hier command again to disable hier view)\n"
+                 << "END: To close and Exit the Session"
                  << "\n";
+            hier_status = false;
         }
 
         
@@ -237,7 +243,7 @@ string join(vector<string> arr, char joiner){
     str.pop_back();
     return str;
 }
-// To validate the number of arguments of a command
+// To vaidate the number of arguments of a command
 /**
  * arg_inp = number of arguments present
  * min_arg = min args possible
@@ -247,10 +253,12 @@ string join(vector<string> arr, char joiner){
 bool validate_args(int arg_inp, int min_arg,int max_arg, string cmd){
     if(arg_inp > max_arg){
         cout << "Too many arguments for the command '" << cmd << "',\nuse help to display the list and syntax of commands.\n";
+        hier_status = false;
         return false;
     }
     else if(arg_inp < min_arg){
         cout << "Too few arguments for the command '" << cmd << "',\nuse help to display the list and syntax of commands.\n";
+        hier_status = false;
         return false;
     }
     return true;
@@ -330,17 +338,18 @@ vector<string> split_cmd(string s){
         return split(s, ' ');
 }
 
-// Function to display the heirarchy
-void display_Heirarchy(){ // Pending...
-
-}
-
 // Function to open shell (OPTIONAL)
 void openWin() { // Pending...
 }
 
 int main(){
-//     cout << "Welcome to " << APP_NAME << "\n";
+    // cout << "\t\t\t\t\t\b================================== " << endl;
+    // cout << "\t\t\t\t\tWelcome to " << APP_NAME << "\n";
+
+    cout<<"\t\t\t\t    ======================================================\n";
+	cout<<"\t\t\t\t   |           Welcome to FILE MANAGEMENT SYSTEM          |\n";
+    cout<<"\t\t\t\t    ======================================================\n\n\n";
+
     int hier_view = 0;
     string cwdPath = getCWD();
     string cwd = cwdPath;
@@ -354,10 +363,12 @@ int main(){
         bool validity = true; // Flag to check if the command is valid, intoduced this to encounter of printing both invalid arg and cmd not recognised
         if(hier_view % 2 == 0)
             cout << "\n" << cwd << "> ";
-        else{
+        else if(hier_status){
             hier(cwd);
-            cout << "\n Enter your command: ";
+            cout << "\nEnter your command: ";
         }
+        else
+            cout << "\nEnter your command: ";
         getline(cin, cmd);
         cmd_arr = split_cmd(cmd);
 
@@ -373,6 +384,8 @@ int main(){
             if(file1.good()){
                 clipboard = op.copy(cmd_arr[1]);
                 file1.close(); 
+                hier_status = false;
+                cout << "File copied successfully\n";
             }        
             else if(file2.good()){
                 clipboard.push_back(cwd + "\\" + cmd_arr[1]);
@@ -380,16 +393,21 @@ int main(){
                 clipboard.push_back(cmd_arr[1]);
                 file2.close();
                 op.del(cwd + "\\" + cmd_arr[1] + "\\test________test.txt");
+                hier_status = false;
+                cout << "File copied successfully\n";
             }
             else{
                 file1.close();
                 file2.close();
                 cout << "No such file or directory as '" << cmd_arr[1] << "' found.\n";
+                hier_status = true;
             }
         }
         else if(cmd_arr[0] == "paste" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0]))){
-            if(clipboard.size() == 0)
+            if(clipboard.size() == 0){
                 cout << "Nothing to paste, please copy a fil or folder first\n";
+                hier_status = false;
+            }
             else if(clipboard.size() == 2){
                 ofstream copied_file(cwd + "\\" + clipboard[0]);
                 copied_file << clipboard[1];
@@ -398,7 +416,7 @@ int main(){
             }
             else{
                 op.crtdir(clipboard[2]);
-                string temp = "xcopy \"" + clipboard[0] + "\" \"" + cwd + "\\" + clipboard[2] + "_copy" + "\" /E /I"; // Command prompt function to compy and paste directories, /E also ccopies all the subdirectories
+                string temp = "xcopy \"" + clipboard[0] + "\" \"" + cwd + "\\" + clipboard[2] + "_copy" + "\" /E /I"; // Command prompt function to copy and paste directories, /E also ccopies all the subdirectories
                 system(temp.c_str());
                 clipboard.clear();
             }
@@ -408,7 +426,7 @@ int main(){
         else if(cmd_arr[0] == "crtdir" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0])))
             op.crtdir(cmd_arr[1]);
         else if(cmd_arr[0] == "deldir" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0]))){
-            ofstream test_file(cwd + "/test________test.txt");
+            ofstream test_file(cwd + "\\" +cmd_arr[1] + "\\test________test.txt");
             if(test_file.good()){
                 test_file.close();
                 string confirmation;
@@ -422,25 +440,40 @@ int main(){
                         << "Type \"cancel\" to cancel the action\n";
                         cin >> confirmation;
                         if(confirmation == "confirm"){
-                            op.deldir(cwd + "\\" + cmd_arr[1]);
+                            op.deldir(cwd + "\\" + cmd_arr[1]);                            
+                            op.del(cwd + "\\" +cmd_arr[1] + "\\test________test.txt");
                         }
                     }
                 }
             }   
             else{
                 test_file.close();
-                cout << "No such directory as '" << cmd_arr[1] << "' found.";
+                cout << "No such directory as '" << cmd_arr[1] << "' found.\n";
+                hier_status = false;
             }                 
         }
-        else if(cmd_arr[0] == "list" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0])))
+        else if(cmd_arr[0] == "list" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0]))){
             op.list(cwd);
-        else if(cmd_arr[0] == "hier" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0])))   
-            hier_view += 1;
-        
+            hier_status = false;
+        }
+        else if(cmd_arr[0] == "hier" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0]))){
+            if(!hier_status){
+                hier_status = true;
+                hier_view += 1;
+            }
+            else{
+                hier_status = false;
+                hier_view += 1;
+            }
+            if(hier_view % 2 == 1)
+                hier_status = true;
+        }        
         else if(cmd_arr[0] == "end" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0])))
             break;
-        else if(validity)
+        else if(validity){
             cout << "Error:'" << cmd_arr[0] << "' is not recognised as a Command,\nuse help for list and of commands.\n";
+            hier_status = false;
+        }
     }
     cout << "Thank You for using " << APP_NAME << "\n Exiting...\n"; 
     
