@@ -70,6 +70,7 @@ public:
                         *cwd = cmd_arr[1];
                         test_file.close();
                         del(temp_cwd + "\\test________test.txt");
+                        hier_status = true;
                     }
                     else{
                         cout << "No such path as '" << cmd_arr[1] << "' found." << endl;
@@ -84,6 +85,7 @@ public:
                         *cwd = cmd_arr[1];
                         test_file.close();
                         del(temp_cwd + "/test________test.txt");
+                        hier_status = true;
                     }
                     else{
                         cout << "No such path as '" << cmd_arr[1] << "' found." << endl;
@@ -96,11 +98,13 @@ public:
                     temp = split(*cwd, '\\');
                     temp.pop_back();
                     *cwd = join(temp, '\\');
+                    hier_status = true;
                 }
                 else if(split(*cwd, '/').size() > 1){
                     temp = split(*cwd, '/');
                     temp.pop_back();
                     *cwd = join(temp, '/');
+                    hier_status = true;
                 }
             }
             else{ // This case if user enters only directory name
@@ -174,7 +178,7 @@ public:
 
         // Function to open file with its default app
         void openWin(string filePath){ 
-            string cmd = "python test.py \"" + filePath + "\"";
+            string cmd = "python app_executor.py \"" + filePath + "\"";
             ifstream test_file(filePath);
             // If file exist the run the command
             if(test_file.good()){
@@ -334,8 +338,7 @@ vector<string> split(string s, char splitter){
 
 // This algo handles the splitting of path if directory name has space in it
 vector<string> split_cmd(string s){
-    vector<string> temp1, temp2, temp3;
-    
+    vector<string> temp1, temp2, temp3;    
     if(split(s, '/').size() > 1){ // Taking care of user input path can be of form / or "\"        
         temp1 = split(s, '/');
         temp3 = split(temp1[0], ' ');        
@@ -358,7 +361,28 @@ vector<string> split_cmd(string s){
         return split(s, ' ');
 }
 
+// To handle space in file name while splitting with space
+vector<string> split_space(string s, char splitter){    
+    vector<string> arr;
+    string temp = "";
+    int i = 0;
+    for(; i < s.length() ; i++){
+        if(s[i] == splitter){
+            arr.push_back(temp);
+            temp = "";
+            break;
+        }
+        else
+            temp += s[i];
+    }
+    i++;
+    for(; i < s.length(); i++)
+        temp += s[i];
+    
+    arr.push_back(temp);
 
+    return arr;
+}
 
 int main(){
     // cout << "\t\t\t\t\t\b================================== " << endl;
@@ -389,6 +413,7 @@ int main(){
             cout << "\nEnter your command: ";
         getline(cin, cmd);
         cmd_arr = split_cmd(cmd);
+        vector<string> open_filePath = split_space(cmd, ' ');
 
         if(cmd_arr[0] == "help")
             op.help();
@@ -485,11 +510,11 @@ int main(){
             if(hier_view % 2 == 1)
                 hier_status = true;
         }     
-        else if(cmd_arr[0] == "open" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0])))
-            op.openWin(cwd + "\\" + cmd_arr[1]);
+        else if(cmd_arr[0] == "open" && (validity = validate_args(open_filePath.size() - 1, 1, 1, cmd_arr[0])))
+            op.openWin(cwd + "\\" + open_filePath[1]);
         else if(cmd_arr[0] == "end" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0])))
             break;
-        else if(validity){
+        else if(validity){  
             cout << "Error:'" << cmd_arr[0] << "' is not recognised as a Command,\nuse help for listear of commands.\n";
             hier_status = false;
         }
