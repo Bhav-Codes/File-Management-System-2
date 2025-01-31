@@ -458,15 +458,17 @@ using namespace std;
 // }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------
-#include<cstdlib>
-void openWin(string filePath){ 
-    string cmd = "python test.py \"" + filePath + "\"";
-    ifstream test_file(filePath);
-    if(test_file.good()){
-        system(filePath.c_str());
-    }
-}
+// #include<cstdlib>
+// void openWin(string filePath){ 
+//     string cmd = "python test.py \"" + filePath + "\"";
+//     ifstream test_file(filePath);
+//     if(test_file.good()){
+//         system(filePath.c_str());
+//     }
+// }
 
-int main(){
-    openWin("C:\\Desktop files\\AutoCAD\\Asmt3.pdf");
-}
+// int main(){
+//     openWin("C:\\Desktop files\\AutoCAD\\Asmt3.pdf");
+// }
+
+// -----------------------------VERSION 1.0 ENDS HERE-----------------------------------------------

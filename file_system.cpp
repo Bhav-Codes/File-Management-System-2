@@ -6,16 +6,30 @@
 //^ only using for linking python file
 #include<cstdio> // To delete file, Syntax: remove("filename.txt");
 //#include<filesystem> //unable to integrate, because old compiler to substituted this - using windows API, and also i've tried to avoid the use of it as it has many pre written logics
-#include<Windows.h> // For getting Current working directory (problem: makes the app windows specific)(But file system not working because old compiler)
-// WE CAN ALSO USE THE UP ARROW TO GET THE PREVIOUS COMMAND
+#include<Windows.h> // For getting Current working directory (problem: makes the app windows specific)
+// And also to get the files present in cwd
+
+// WE CAN ALSO USE THE UP ARROW TO GET THE PREVIOUS COMMAND -- FEATURE
+// Could have gone by displaying the function and assigning a number to them but to make it more natural i've made it linux like
+// Though with small number of commands displaying the list and assigning the number is more handy but as we add more and more commands it starts to clutter
+// So I've made it like this to make it more natural and easy to use
+// IN DELDIR DIR NAME CANNOT HAVE ANY SPACE IN IT
+
 #define APP_NAME "FILE MANAGEMENT SYSTEM"
+
 using namespace std;
+
 bool hier_status = false; // To not re-display hierarchy view if there is an error message
 vector<string> split(string , char);
 string join(vector<string> , char);
+
 // Class of all the basic operations on FILE
 class file_op{
 public:
+        // To create a file
+        /** FEATURES
+         *  Displays msg if file is already present
+         */
         void create(string fileName){
             ifstream test(fileName);
             if (test.good()){
@@ -29,8 +43,12 @@ public:
             file.close();
         }
 
+        // To del a file 
+        /** FEATURES
+         *  Displays an error message is no such file exists
+         */
         void del(string fileName){
-            // remove is in cstdio
+            // remove is in CSTDIO
             if(remove(fileName.c_str()) != 0){ // c_str used to type cast string to const char*, as remove has paramter as const char*
                 cout << "No such file as '" << fileName << "' found."<< endl; 
                 hier_status = false;
@@ -39,6 +57,11 @@ public:
             hier_status = true;
         }
 
+        // To copy a file
+        /** FEATURES
+         *  Also copies file's content
+         *  Uses a clipboard concept
+         */
         vector<string> copy(string fileName){ 
             // Copies file name and its content in an array (CLIPBOARD)
             vector<string> file_name_arr = split(fileName, '.');
@@ -56,6 +79,11 @@ public:
             return file_det;
         }
 
+        // To change directories
+        /**
+         * The input can be in form of path or directly the name of directory in the cwd
+         * If input is '-' then it will change to the parent directory
+         */
         void cd(string* cwd, vector<string> cmd_arr){ 
             // CHECK FUNCTIONING
             vector<string> temp;
@@ -142,6 +170,7 @@ public:
             }
         }
 
+        // Lists all the files and folder present in the cwd
         void list(string path){
             path += "\\*";
             WIN32_FIND_DATA findFileData; // WIN32_FIND_DATA is a struct that stores information about any file or folder 
@@ -182,7 +211,7 @@ public:
             ifstream test_file(filePath);
             // If file exist the run the command
             if(test_file.good()){
-                system(cmd.c_str());
+                system(cmd.c_str()); // In cstdlib, executes a command in command prompt
                 cout << "File opened successfully\n";
             }
             else{
@@ -200,11 +229,11 @@ public:
                  << "DELDIR: To delete a dir SYNTAX: deldir <dirName/path> (DANGEROUS!!!)\n"
                  << "LIST: To display all the content present in the current working directory SYNTAX: list\n"
                  << "HIER: To switch to an hierarchy view SYNTAX: hier (Enter use hier command again to disable hier view)\n"
-                 << "END: To close and Exit the Session"
+                 << "END: To close and Exit the Session\n"
+                 << "OPEN: To open a file with its default app SYNTAX: open <filePath>"
                  << "\n";
             hier_status = false;
         }
-
         
 };
 
@@ -213,6 +242,7 @@ void stimes(string s, int n){ // prints a specific string n numbers f times
         cout << s;
 }
 
+// To switch to an hierarchy view
 void hier(string cwd){
     string temp_cwd = cwd;
     file_op op;
@@ -224,14 +254,15 @@ void hier(string cwd){
         cout << "> " << cwd_arr[i] << endl;
     }
 
-    cwd += "\\*";
+    cwd += "\\*"; // * is like a wildcard, eg: *.txt looks for only text files
     WIN32_FIND_DATA findFileData; 
     HANDLE hFind = FindFirstFile(cwd.c_str(), &findFileData);
 
-    if (hFind == INVALID_HANDLE_VALUE){
+    if (hFind == INVALID_HANDLE_VALUE){ // hFind returns INVALID_HANDLE_VALUE if the file is not found
         cout << "No files found.\n";
         return;
     }    
+
     while (FindNextFile(hFind, &findFileData) != 0){ // findnextfile return non zero if there are more files else it returns 0
         string fileName = findFileData.cFileName;
 
@@ -290,13 +321,10 @@ bool validate_args(int arg_inp, int min_arg,int max_arg, string cmd){
 // To get the current working directory
 string getCWD(){
     char cwd[MAX_PATH]; // An array of char to store path of var, array of 260 char for windows, MAX_PATH is a constn defined in windows.h 
-    GetCurrentDirectoryA(MAX_PATH, cwd);// Function in windows.h  here cwd:A pointer to the buffer where the directory path will be stored
+    GetCurrentDirectoryA(MAX_PATH, cwd);// Function in windows.h  here cwd: A pointer to the buffer where the directory path will be stored
     string path = cwd;
     return path;
 }
-
-// Could have gone by displaying the function and assigning a number to them but to make it more natural i've made it linux like
-// Though with small number of commands displaying the list and assigning the number is more handy but as we add more and more commands it starts to clutter
 
 // Used to count the number of splitter
 // Avoided the use of in built count function in algorithm library
@@ -385,14 +413,12 @@ vector<string> split_space(string s, char splitter){
 }
 
 int main(){
-    // cout << "\t\t\t\t\t\b================================== " << endl;
-    // cout << "\t\t\t\t\tWelcome to " << APP_NAME << "\n";
 
     cout<<"\t\t\t\t    ======================================================\n";
 	cout<<"\t\t\t\t   |           Welcome to FILE MANAGEMENT SYSTEM          |\n";
     cout<<"\t\t\t\t    ======================================================\n\n\n";
 
-    int hier_view = 0;
+    int hier_view = 0; // User's input status for hier view
     string cwdPath = getCWD();
     string cwd = cwdPath;
     vector<string> clipboard;
@@ -422,8 +448,8 @@ int main(){
         else if(cmd_arr[0] == "del" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0])))
             op.del(cwd + "\\" + cmd_arr[1]);
         else if(cmd_arr[0] == "copy" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0]))){
-            ifstream file1(cmd_arr[1]);
-            ofstream file2(cwd + "\\" + cmd_arr[1] + "\\test________test.txt");
+            ifstream file1(cmd_arr[1]); // To check if file exists
+            ofstream file2(cwd + "\\" + cmd_arr[1] + "\\test________test.txt"); // To check if folder exists
             if(file1.good()){
                 clipboard = op.copy(cmd_arr[1]);
                 file1.close(); 
@@ -437,7 +463,7 @@ int main(){
                 file2.close();
                 op.del(cwd + "\\" + cmd_arr[1] + "\\test________test.txt");
                 hier_status = false;
-                cout << "File copied successfully\n";
+                cout << "Copied successfully\n";
             }
             else{
                 file1.close();
@@ -511,7 +537,7 @@ int main(){
                 hier_status = true;
         }     
         else if(cmd_arr[0] == "open" && (validity = validate_args(open_filePath.size() - 1, 1, 1, cmd_arr[0])))
-            op.openWin(cwd + "\\" + open_filePath[1]);
+            op.openWin(cwd + "\\" + open_filePath[1]); // To handle spaces in file's name
         else if(cmd_arr[0] == "end" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0])))
             break;
         else if(validity){  
