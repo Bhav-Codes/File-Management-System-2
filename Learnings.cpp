@@ -415,3 +415,58 @@ using namespace std;
 //     cout << i;
 // }
 
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+
+// Including Windows API for getting cwd and opening terminal
+// #include<windows.h>
+// void openWin() {
+//     // Command to open a new Command Prompt window
+//     const char* command = "cmd.exe";
+
+//     // Setting up the process information structures
+//     STARTUPINFO si = { sizeof(STARTUPINFO) }; // Startup information structure
+//     PROCESS_INFORMATION pi = {};             // Process information structure
+
+//     // Create a new process (launch terminal)
+//     if (CreateProcess(
+//             nullptr,               // Application name (nullptr allows specifying it in `command`)
+//             const_cast<char*>(command), // Command line
+//             nullptr,               // Process security attributes
+//             nullptr,               // Thread security attributes
+//             FALSE,                 // Inherit handles
+//             0,                     // Creation flags
+//             nullptr,               // Environment
+//             nullptr,               // Current directory
+//             &si,                   // Startup information
+//             &pi                    // Process information
+//         )) {
+//         std::cout << "Terminal opened successfully!" << std::endl;
+
+//         // Close process and thread handles
+//         // CloseHandle(pi.hProcess);
+//         // CloseHandle(pi.hThread);
+//     } else {
+//         std::cerr << "Failed to open terminal. Error: " << GetLastError() << std::endl;
+//     }
+// }
+
+// int main(){
+//     openWin();
+//     int a;
+//     cout << "Enter : ";
+//     cin >> a;
+// }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------
+#include<cstdlib>
+void openWin(string filePath){ 
+    string cmd = "python test.py \"" + filePath + "\"";
+    ifstream test_file(filePath);
+    if(test_file.good()){
+        system(filePath.c_str());
+    }
+}
+
+int main(){
+    openWin("C:\\Desktop files\\AutoCAD\\Asmt3.pdf");
+}

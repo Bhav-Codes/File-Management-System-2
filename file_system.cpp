@@ -2,7 +2,8 @@
 #include<fstream>
 #include<string>
 #include<vector> 
-//#include<cstdlib> // for system(), used to execute system commands, // Could have used this to directly use ccommand propmt function but opt to do it myself
+#include<cstdlib> // for system(), used to execute system commands, // Could have used this to directly use ccommand propmt function but opt to do it myself
+//^ only using for linking python file
 #include<cstdio> // To delete file, Syntax: remove("filename.txt");
 //#include<filesystem> //unable to integrate, because old compiler to substituted this - using windows API, and also i've tried to avoid the use of it as it has many pre written logics
 #include<Windows.h> // For getting Current working directory (problem: makes the app windows specific)(But file system not working because old compiler)
@@ -158,14 +159,31 @@ public:
             FindClose(hFind);
         }
 
+        // To create a directory
         void crtdir(string s){
+            cout << s << endl;
             s = "mkdir \"" + s + "\"";
             system(s.c_str());
         }
 
+        // To delete directory (DANGEROUS FUNCTION [REMOVES WHOLE DIRECTORY TREE, NOT EVEN RECOVERED IN RECYCLE BIN])
         void deldir(string s){
             s = "rmdir \"" + s + "\" /S /Q" ; // /S to also delete subdirectories and /Q to force pass the the confirmation message given by command prompt
             system(s.c_str());
+        }
+
+        // Function to open file with its default app
+        void openWin(string filePath){ 
+            string cmd = "python test.py \"" + filePath + "\"";
+            ifstream test_file(filePath);
+            // If file exist the run the command
+            if(test_file.good()){
+                system(cmd.c_str());
+                cout << "File opened successfully\n";
+            }
+            else{
+                cout << "No such file as '" << filePath << "' found." << endl;
+            }
         }
 
         void help(){            
@@ -298,6 +316,7 @@ int countChr(string s, char splitter){
  */
 vector<string> split(string s, char splitter){
     s += splitter;
+    
     vector<string> arr;
     string temp = "";
 
@@ -309,6 +328,7 @@ vector<string> split(string s, char splitter){
         else
             temp += s[i];
     }
+
     return arr;
 }
 
@@ -338,9 +358,7 @@ vector<string> split_cmd(string s){
         return split(s, ' ');
 }
 
-// Function to open shell (OPTIONAL)
-void openWin() { // Pending...
-}
+
 
 int main(){
     // cout << "\t\t\t\t\t\b================================== " << endl;
@@ -424,9 +442,9 @@ int main(){
         else if(cmd_arr[0] == "cd" && (validity = validate_args(cmd_arr.size() - 1, 1, 10, cmd_arr[0])))
             op.cd(&cwd, cmd_arr);
         else if(cmd_arr[0] == "crtdir" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0])))
-            op.crtdir(cmd_arr[1]);
+            op.crtdir(cwd + "\\" + cmd_arr[1]);
         else if(cmd_arr[0] == "deldir" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0]))){
-            ofstream test_file(cwd + "\\" +cmd_arr[1] + "\\test________test.txt");
+            ofstream test_file(cwd + "\\" + cmd_arr[1] + "\\test________test.txt");
             if(test_file.good()){
                 test_file.close();
                 string confirmation;
@@ -440,8 +458,7 @@ int main(){
                         << "Type \"cancel\" to cancel the action\n";
                         cin >> confirmation;
                         if(confirmation == "confirm"){
-                            op.deldir(cwd + "\\" + cmd_arr[1]);                            
-                            op.del(cwd + "\\" +cmd_arr[1] + "\\test________test.txt");
+                            op.deldir(cwd + "\\" + cmd_arr[1]);
                         }
                     }
                 }
@@ -467,11 +484,13 @@ int main(){
             }
             if(hier_view % 2 == 1)
                 hier_status = true;
-        }        
+        }     
+        else if(cmd_arr[0] == "open" && (validity = validate_args(cmd_arr.size() - 1, 1, 1, cmd_arr[0])))
+            op.openWin(cwd + "\\" + cmd_arr[1]);
         else if(cmd_arr[0] == "end" && (validity = validate_args(cmd_arr.size() - 1, 0, 0, cmd_arr[0])))
             break;
         else if(validity){
-            cout << "Error:'" << cmd_arr[0] << "' is not recognised as a Command,\nuse help for list and of commands.\n";
+            cout << "Error:'" << cmd_arr[0] << "' is not recognised as a Command,\nuse help for listear of commands.\n";
             hier_status = false;
         }
     }
